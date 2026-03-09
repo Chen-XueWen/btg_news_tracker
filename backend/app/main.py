@@ -9,6 +9,7 @@ from app.agent.graph import build_news_agent
 from app.config import load_settings
 from app.schemas import Article, NewsRequest, NewsResponse
 from app.services.brave_search import BraveSearchError
+from app.services.slack import SlackSendError, send_news_to_slack
 
 
 app = FastAPI(title="BTG News Tracker API", version="0.1.0")
@@ -42,6 +43,8 @@ async def news(payload: NewsRequest) -> NewsResponse:
         raise HTTPException(status_code=500, detail="Missing Brave API key.")
     if not settings.openai_api_key:
         raise HTTPException(status_code=500, detail="Missing OpenAI API key.")
+    if not settings.slack_webhook_url:
+        raise HTTPException(status_code=500, detail="Missing Slack webhook URL.")
 
     try:
         result = await app.state.agent.ainvoke({"topic": payload.topic})
@@ -52,10 +55,24 @@ async def news(payload: NewsRequest) -> NewsResponse:
 
     articles = [Article(**item) for item in result.get("articles", [])]
     summary = result.get("summary", "")
+    generated_at = datetime.now(timezone.utc)
 
-    return NewsResponse(
+    response_payload = NewsResponse(
         topic=payload.topic,
         summary=summary,
         articles=articles,
-        generated_at=datetime.now(timezone.utc),
+        generated_at=generated_at,
     )
+
+    try:
+        await send_news_to_slack(
+            webhook_url=settings.slack_webhook_url,
+            topic=response_payload.topic,
+            summary=response_payload.summary,
+            articles=[article.model_dump() for article in response_payload.articles],
+            generated_at=response_payload.generated_at,
+        )
+    except SlackSendError as exc:
+        raise HTTPException(status_code=502, detail=str(exc)) from exc
+
+    return response_payload

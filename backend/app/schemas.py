@@ -15,6 +15,8 @@ class Article(BaseModel):
     description: str | None = None
     source: str | None = None
     published: str | None = None
+    published_at: str | None = None
+    mini_summary: str | None = None
 
 
 class NewsResponse(BaseModel):

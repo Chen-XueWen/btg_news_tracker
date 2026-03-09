@@ -2,7 +2,7 @@
 
 Initial version of a topic-driven news agent with:
 - FastAPI backend
-- LangGraph orchestration (`search -> summarize`)
+- LangGraph orchestration (`search -> summarize_sources -> summarize`)
 - Brave Search API for latest web results (last 7 days)
 - OpenAI GPT-5 mini for synthesis
 - React frontend
@@ -15,14 +15,18 @@ Initial version of a topic-driven news agent with:
 Backend flow:
 1. Accept topic (`POST /api/news`)
 2. Query Brave Search with `freshness=pw` (past week)
-3. Summarize results with GPT-5 mini
-4. Return summary + source list
+3. Strictly keep only parseable sources published within the last 7 days
+4. Dedupe by canonical URL and normalized title
+5. Generate per-source mini summaries
+6. Build final global summary from mini summaries + source snippets
+7. Return summary + source list
 
 ## Keys
 
-This project reads keys from either env vars or root key files:
-- `BRAVE_API_KEY` or `./bravesearchapi.key`
-- `OPENAI_API_KEY` or `./openai.key`
+This project reads keys from either env vars or files in `./secrets/`:
+- `BRAVE_API_KEY` or `./secrets/bravesearchapi.key`
+- `OPENAI_API_KEY` or `./secrets/openai.key`
+- `SLACK_WEBHOOK_URL` or `./secrets/slackwebhook.key`
 
 ## Run backend
 
@@ -65,5 +69,7 @@ curl -X POST http://localhost:8000/api/news \
 
 ## Notes
 
-- "Last 7 days" is currently implemented via Brave's weekly freshness filter (`freshness=pw`).
-- Next expansion ideas: multi-source ranking, dedupe, citation confidence, scheduled tracking, persistence.
+- "Last 7 days" is enforced twice: Brave's weekly freshness filter and strict backend date filtering.
+- Date filtering keeps only sources with parseable timestamps that fall inside the rolling 7-day window.
+- Current tradeoff: strict filtering may return fewer results for topics where many pages have missing/ambiguous publish dates.
+- On successful generation, the backend sends the topic summary and source mini-summaries to Slack via webhook.

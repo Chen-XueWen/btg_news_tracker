@@ -74,6 +74,7 @@ export default function App() {
                 <a href={article.url} target="_blank" rel="noreferrer">
                   {article.title}
                 </a>
+                {article.mini_summary && <p><strong>Mini summary:</strong> {article.mini_summary}</p>}
                 <p>{article.description}</p>
                 <small>
                   {article.source || 'Unknown source'} {article.published ? `| ${article.published}` : ''}
