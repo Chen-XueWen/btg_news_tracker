@@ -3,6 +3,10 @@ import { useMemo, useState } from 'react'
 const API_BASE = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000'
 const MAX_METRICS = 5
 const CUSTOM_OPTION = 'custom'
+const VIDEO_DURATION_OPTIONS = [4, 8, 12]
+const DEFAULT_VIDEO_SECONDS = 12
+const VIDEO_POLL_INTERVAL_MS = 5000
+const VIDEO_POLL_MAX_ATTEMPTS = 180
 
 const PRESET_METRICS = [
   {
@@ -43,6 +47,7 @@ export default function App() {
   const [videoLoading, setVideoLoading] = useState(false)
   const [videoError, setVideoError] = useState('')
   const [videoJob, setVideoJob] = useState(null)
+  const [videoSeconds, setVideoSeconds] = useState(DEFAULT_VIDEO_SECONDS)
 
   const canSubmit = useMemo(() => topic.trim().length >= 2 && !loading, [topic, loading])
 
@@ -154,7 +159,7 @@ export default function App() {
   }
 
   async function pollVideoJob(videoId) {
-    for (let attempt = 0; attempt < 60; attempt += 1) {
+    for (let attempt = 0; attempt < VIDEO_POLL_MAX_ATTEMPTS; attempt += 1) {
       const response = await fetch(`${API_BASE}/api/videos/${videoId}`)
       const data = await response.json()
       if (!response.ok) {
@@ -168,11 +173,11 @@ export default function App() {
       }
 
       await new Promise((resolve) => {
-        setTimeout(resolve, 5000)
+        setTimeout(resolve, VIDEO_POLL_INTERVAL_MS)
       })
     }
 
-    throw new Error('Video generation timed out while waiting for completion.')
+    throw new Error('Video generation timed out while waiting for completion (15 minutes).')
   }
 
   function extractVideoErrorText(job) {
@@ -200,6 +205,10 @@ export default function App() {
       return
     }
 
+    const requestedSeconds = Number(videoSeconds)
+    const safeSeconds = VIDEO_DURATION_OPTIONS.includes(requestedSeconds)
+      ? requestedSeconds
+      : DEFAULT_VIDEO_SECONDS
     setVideoLoading(true)
     setVideoError('')
 
@@ -210,7 +219,7 @@ export default function App() {
         body: JSON.stringify({
           topic: result.topic,
           summary: result.summary,
-          seconds: 8,
+          seconds: safeSeconds,
           size: '1280x720'
         })
       })
@@ -336,8 +345,20 @@ export default function App() {
             <h3>Video Narration</h3>
             <p className="video-help">
               Generates a short video narration using <code>sora-2</code> (cost-optimized option) with a
-              neutral news-anchor voice.
+              neutral news-anchor voice. Duration options are 4, 8, or 12 seconds.
             </p>
+            <label htmlFor="video-seconds">Duration (seconds)</label>
+            <select
+              id="video-seconds"
+              value={videoSeconds}
+              onChange={(e) => setVideoSeconds(Number(e.target.value))}
+            >
+              {VIDEO_DURATION_OPTIONS.map((option) => (
+                <option key={option} value={option}>
+                  {option}
+                </option>
+              ))}
+            </select>
             <button type="button" onClick={handleGenerateVideo} disabled={videoLoading}>
               {videoLoading ? 'Generating video...' : 'Generate video'}
             </button>

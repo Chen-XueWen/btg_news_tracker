@@ -13,3 +13,4 @@ frontend/dist/
 # OS/editor
 .DS_Store
 .vscode/
+backend/logs

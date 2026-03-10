@@ -1,24 +1,104 @@
 from __future__ import annotations
 
+import logging
 import re
 from typing import Any
 
 import httpx
+from openai import AsyncOpenAI
 
 
 class VideoGenerationError(RuntimeError):
     pass
 
 
-def _truncate_summary(text: str, max_chars: int = 900) -> str:
-    clean = " ".join(text.split()).strip()
-    if len(clean) <= max_chars:
-        return clean
-    return clean[: max_chars - 1].rstrip() + "…"
+ALLOWED_VIDEO_SECONDS = (4, 8, 12)
+logger = logging.getLogger(__name__)
+
+def _normalize_line(text: str) -> str:
+    return " ".join(text.split()).strip()
 
 
-def build_video_prompt(*, topic: str, summary: str) -> str:
-    summary_text = _truncate_summary(summary)
+def _target_word_budget(seconds: int) -> int:
+    # ~2.2 words/second is a practical voiceover pacing target.
+    return max(8, min(32, round(seconds * 2.2)))
+
+
+def _truncate_words(text: str, max_words: int) -> str:
+    words = _normalize_line(text).split(" ")
+    if len(words) <= max_words:
+        return " ".join(words).strip()
+    return " ".join(words[:max_words]).rstrip(" ,;:.") + "."
+
+
+def _fallback_script(*, summary: str, seconds: int) -> str:
+    word_budget = _target_word_budget(seconds)
+    compact = _normalize_line(summary)
+    if not compact:
+        return "No major updates were available in this cycle."
+    return _truncate_words(compact, word_budget)
+
+
+async def _distill_summary_for_voiceover(
+    *,
+    topic: str,
+    summary: str,
+    seconds: int,
+    openai_api_key: str,
+    model: str,
+) -> str:
+    fallback = _fallback_script(summary=summary, seconds=seconds)
+    if not openai_api_key:
+        return fallback
+
+    word_budget = _target_word_budget(seconds)
+    prompt = (
+        "Rewrite the news summary into a short narration script for a video.\n"
+        f"- Topic: {topic}\n"
+        f"- Duration: {seconds} seconds\n"
+        f"- Maximum words: {word_budget}\n"
+        "- Keep only key facts and concrete outcomes.\n"
+        "- No bullet points, no markdown, no list numbering.\n"
+        "- Output one compact paragraph only.\n\n"
+        f"Summary:\n{summary}\n"
+    )
+
+    client = AsyncOpenAI(api_key=openai_api_key)
+    try:
+        response = await client.responses.create(model=model, input=prompt)
+    except Exception:
+        return fallback
+
+    distilled = _normalize_line(response.output_text or "")
+    if not distilled:
+        return fallback
+
+    distilled_script = _truncate_words(distilled, word_budget)
+    logger.info(
+        "Distilled narration script ready. topic=%r seconds=%s words=%s script=%r",
+        topic,
+        seconds,
+        len(distilled_script.split()),
+        distilled_script,
+    )
+    return distilled_script
+
+
+async def build_video_prompt(
+    *,
+    topic: str,
+    summary: str,
+    seconds: int,
+    openai_api_key: str,
+    model: str = "gpt-5-mini",
+) -> str:
+    summary_text = await _distill_summary_for_voiceover(
+        topic=topic,
+        summary=summary,
+        seconds=seconds,
+        openai_api_key=openai_api_key,
+        model=model,
+    )
     return (
         f"Create a short news explainer video about '{topic}' with synchronized narration. "
         "Visual style: modern broadcast graphics package with abstract motion graphics, maps, charts, and text overlays. "
@@ -61,7 +141,7 @@ async def create_video_job(
     api_key: str,
     prompt: str,
     model: str = "sora-2",
-    seconds: int = 8,
+    seconds: int = 12,
     size: str = "1280x720",
 ) -> dict[str, Any]:
     if not api_key:
@@ -69,8 +149,8 @@ async def create_video_job(
 
     _validate_size(size)
 
-    if seconds < 1 or seconds > 20:
-        raise VideoGenerationError("Video seconds must be between 1 and 20.")
+    if seconds not in ALLOWED_VIDEO_SECONDS:
+        raise VideoGenerationError("Video seconds must be one of: 4, 8, 12 for sora-2.")
 
     files = {
         "prompt": (None, prompt),
@@ -84,7 +164,7 @@ async def create_video_job(
         "Accept": "application/json",
     }
 
-    async with httpx.AsyncClient(timeout=60.0) as client:
+    async with httpx.AsyncClient(timeout=120.0) as client:
         response = await client.post(
             "https://api.openai.com/v1/videos",
             headers=headers,
@@ -109,7 +189,7 @@ async def get_video_job(*, api_key: str, video_id: str) -> dict[str, Any]:
         "Accept": "application/json",
     }
 
-    async with httpx.AsyncClient(timeout=30.0) as client:
+    async with httpx.AsyncClient(timeout=60.0) as client:
         response = await client.get(f"https://api.openai.com/v1/videos/{video_id}", headers=headers)
 
     if response.status_code >= 400:
@@ -129,7 +209,7 @@ async def download_video_content(*, api_key: str, video_id: str) -> bytes:
         "Authorization": f"Bearer {api_key}",
     }
 
-    async with httpx.AsyncClient(timeout=120.0) as client:
+    async with httpx.AsyncClient(timeout=300.0) as client:
         response = await client.get(
             f"https://api.openai.com/v1/videos/{video_id}/content",
             headers=headers,

@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<!-- saved from url=(0022)http://localhost:5173/ -->
+<html lang="en"><head><meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+    <script type="module">import { injectIntoGlobalHook } from "/@react-refresh";
+injectIntoGlobalHook(window);
+window.$RefreshReg$ = () => {};
+window.$RefreshSig$ = () => (type) => type;</script>
+
+    <script type="module" src="./BTG News Tracker_files/client"></script>
+
+    
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>BTG News Tracker</title>
+  <style type="text/css" data-vite-dev-id="/Users/xwtan/Documents/btg_news_tracker/frontend/src/App.css">:root {
+  font-family: 'IBM Plex Sans', 'Segoe UI', sans-serif;
+  color: #0f1a24;
+  background: radial-gradient(circle at top right, #d7efe6, #f6f9fc 55%);
+}
+
+* {
+  box-sizing: border-box;
+}
+
+body {
+  margin: 0;
+}
+
+.container {
+  max-width: 900px;
+  margin: 0 auto;
+  padding: 2rem 1rem 4rem;
+}
+
+h1 {
+  font-size: 2.1rem;
+  margin-bottom: 0.3rem;
+}
+
+.subtitle {
+  margin-top: 0;
+  color: #3f5164;
+}
+
+.form {
+  margin: 1.5rem 0;
+}
+
+.row {
+  display: flex;
+  gap: 0.75rem;
+  margin-top: 0.45rem;
+}
+
+.metric-section {
+  margin-top: 1.2rem;
+  border: 1px solid #d2deea;
+  border-radius: 12px;
+  padding: 0.9rem;
+  background: #f8fbfe;
+}
+
+.metric-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.metric-head h3 {
+  margin: 0;
+}
+
+.metric-help {
+  margin: 0.4rem 0 0.7rem;
+  color: #3f5164;
+}
+
+.metric-list {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.metric-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr auto;
+  gap: 0.6rem;
+}
+
+input {
+  flex: 1;
+  border: 1px solid #b9c8d6;
+  border-radius: 10px;
+  font-size: 1rem;
+  padding: 0.75rem;
+}
+
+select {
+  border: 1px solid #b9c8d6;
+  border-radius: 10px;
+  font-size: 1rem;
+  padding: 0.75rem;
+  background: white;
+}
+
+.readonly-field {
+  background: #edf3f8;
+}
+
+button {
+  border: 0;
+  border-radius: 10px;
+  padding: 0.75rem 1rem;
+  font-size: 0.95rem;
+  font-weight: 600;
+  color: white;
+  background: #0d6f52;
+  cursor: pointer;
+}
+
+button:disabled {
+  opacity: 0.55;
+  cursor: not-allowed;
+}
+
+.button-secondary {
+  background: #2f4e6b;
+}
+
+.button-danger {
+  background: #9f3030;
+}
+
+.error {
+  color: #a42828;
+  font-weight: 600;
+}
+
+.results {
+  margin-top: 1.6rem;
+  border: 1px solid #d5dde6;
+  background: white;
+  border-radius: 14px;
+  padding: 1.2rem;
+}
+
+.summary {
+  white-space: pre-wrap;
+  background: #f4f8fb;
+  padding: 0.9rem;
+  border-radius: 10px;
+  border: 1px solid #e0e7ef;
+}
+
+.video-panel {
+  margin: 1rem 0 1.3rem;
+  padding: 0.9rem;
+  border-radius: 10px;
+  border: 1px solid #d8e2ec;
+  background: #f7fbff;
+}
+
+.video-panel h3 {
+  margin: 0 0 0.4rem;
+}
+
+.video-help {
+  margin: 0 0 0.8rem;
+  color: #3f5164;
+}
+
+.video-status,
+.video-download {
+  margin: 0.7rem 0 0;
+}
+
+.video-error-detail {
+  margin: 0.7rem 0 0;
+  padding: 0.65rem;
+  border: 1px solid #efcaca;
+  background: #fff4f4;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.9rem;
+}
+
+.video-download a {
+  color: #0e375c;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.video-player {
+  width: 100%;
+  margin-top: 0.8rem;
+  border-radius: 10px;
+  border: 1px solid #d6e0ea;
+  background: #0f1a24;
+  max-height: 420px;
+}
+
+.source-metric-line {
+  margin: 0.4rem 0;
+  color: #1f4f3a;
+  font-weight: 600;
+}
+
+.articles {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: grid;
+  gap: 0.9rem;
+}
+
+.articles li {
+  border-top: 1px solid #e7edf3;
+  padding-top: 0.75rem;
+}
+
+.articles a {
+  color: #0e375c;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.articles p {
+  margin: 0.35rem 0;
+  color: #364a5f;
+}
+
+@media (max-width: 640px) {
+  .row {
+    flex-direction: column;
+  }
+
+  .metric-row {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-head {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  button {
+    width: 100%;
+  }
+}
+</style></head>
+  <body>
+    <div id="root"><main class="container"><h1>BTG News Tracker</h1><p class="subtitle">Get a 7-day news brief on any topic.</p><form class="form"><label for="topic">Topic of interest</label><div class="row"><input id="topic" placeholder="Agentic AI, Quantum Computing, etc." value="Singapore AI"><button type="submit">Run agent</button></div><section class="metric-section"><div class="metric-head"><h3>Scoring Metrics</h3><button type="button" class="button-secondary">Add metric</button></div><p class="metric-help">Up to 5 metrics. Pick a variable preset or choose Custom, then adjust the description.</p><div class="metric-list"><div class="metric-row"><select aria-label="Variable preset"><option value="source_credibility">Source Credibility</option><option value="relevance">Topical Relevance</option><option value="actionability">Actionability</option><option value="custom">Custom variable</option></select><input readonly="" class="readonly-field" value="Source Credibility"><input placeholder="Description (how to score this metric)" value="Higher score when sources are reputable, authoritative, and consistent across outlets."><button type="button" class="button-danger">Remove</button></div><div class="metric-row"><select aria-label="Variable preset"><option value="source_credibility">Source Credibility</option><option value="relevance">Topical Relevance</option><option value="actionability">Actionability</option><option value="custom">Custom variable</option></select><input readonly="" class="readonly-field" value="Topical Relevance"><input placeholder="Description (how to score this metric)" value="Higher score when the summary and sources stay tightly focused on the requested topic."><button type="button" class="button-danger">Remove</button></div><div class="metric-row"><select aria-label="Variable preset"><option value="source_credibility">Source Credibility</option><option value="relevance">Topical Relevance</option><option value="actionability">Actionability</option><option value="custom">Custom variable</option></select><input readonly="" class="readonly-field" value="Actionability"><input placeholder="Description (how to score this metric)" value="Higher score when the output provides clear, practical takeaways for next steps."><button type="button" class="button-danger">Remove</button></div></div></section></form><section class="results"><h2>Summary for Singapore AI</h2><pre class="summary">Summary:
+Singapore has launched a coordinated national AI push led by Prime Minister Lawrence Wong, targeting advanced manufacturing, connectivity, finance and healthcare and establishing a National AI Impact Programme. The government is rolling out multiple initiatives including a Champions of AI programme, a new training academy for public officers, and targets to train 100,000 AI-savvy workers and equip 10,000 enterprises by 2029, while offering free premium AI subscriptions for certain SkillsFuture courses from the second half of 2026. Policy measures to attract talent include a new ONE Pass (AI and Tech) visa track with a S$30,000 income requirement, and Singapore and South Korea have launched a Korea–Singapore AI Alliance backed by a US$300 million fund to be based in Singapore. The rollout is accompanied by education and social measures — the Ministry of Education and ministers stress preserving critical thinking in students as GEP is phased out — even as workers brace for disruption and many employees are already adopting AI tools (69% use AI to improve work quality), often not those provided by employers.
+
+Notable signals/trends:
+- A whole-of-government, industry and skills approach: coordinated national strategy, public-sector training academy, Champions of AI and the National AI Impact Programme to mainstream AI across organisations and sectors.
+- Internationalisation and talent focus: bilateral AI partnership with South Korea with a US$300m fund and a revamped high-income ONE Pass to attract global AI and tech talent.
+- Workforce and education tension: aggressive upskilling targets and free tools juxtaposed with concerns about entry-level job displacement, widespread employee use of non-company AI tools, and emphasis on retaining critical thinking in schools.
+
+Sources reviewed: 10</pre><section class="video-panel"><h3>Video Narration</h3><p class="video-help">Generates a short video narration using <code>sora-2</code> (cost-optimized option) with a neutral news-anchor voice. Duration options are 4, 8, or 12 seconds.</p><label for="video-seconds">Duration (seconds)</label><select id="video-seconds"><option value="4">4</option><option value="8">8</option><option value="12">12</option></select><button type="button">Generate video</button><p class="video-status">Status: <strong>completed</strong> (100%)</p><video class="video-player" controls="" preload="metadata" src="http://localhost:8000/api/videos/video_69afe16646a0819190b766d9b0c406140dd36dbd69ffea61/content"></video><p class="video-download"><a href="http://localhost:8000/api/videos/video_69afe16646a0819190b766d9b0c406140dd36dbd69ffea61/content?download=true" target="_blank" rel="noreferrer">Download video (.mp4)</a></p></section><h3>Sources</h3><ul class="articles"><li><a href="https://www.straitstimes.com/tech/singapores-national-ai-push-what-does-it-mean-for-businesses-workers" target="_blank" rel="noreferrer">Singapore’s national AI push: What does it mean for businesses, workers? | The Straits Times</a><p class="source-metric-line">Source Credibility: 4.80 / 5 | Topical Relevance: 5.00 / 5 | Actionability: 4.50 / 5</p><p><strong>tldr:</strong> Singapore is launching a national AI strategy across advanced manufacturing, connectivity, finance and healthcare, led by Prime Minister Lawrence Wong.</p><p>ST PHOTO: LIM YAOHUI · Lee Li Ying · SummarySummary · Singapore is launching a national AI strategy across advanced manufacturing, connectivity, finance, and healthcare, led by PM Lawrence Wong.</p><small>www.straitstimes.com | 1 day ago</small></li><li><a href="https://www.scmp.com/week-asia/people/article/3345747/singapores-workers-brace-ai-disruption-its-inevitable" target="_blank" rel="noreferrer">Singapore’s workers brace for AI disruption: ‘it’s inevitable’ | South China Morning Post</a><p class="source-metric-line">Source Credibility: 4.60 / 5 | Topical Relevance: 4.80 / 5 | Actionability: 3.80 / 5</p><p><strong>tldr:</strong> Singapore aims to make 100,000 workers ‘AI bilingual’, but with entry-level roles already vanishing, workers are bracing for inevitable AI disruption.</p><p>The city state wants 100,000 workers to become ‘AI bilingual’. But with entry-level roles already vanishing, time may not be on its side.</p><small>www.scmp.com | 2 days ago</small></li><li><a href="https://www.channelnewsasia.com/watch/singapore-and-south-korea-launch-ai-alliance-backed-us300m-fund-5966581" target="_blank" rel="noreferrer">Singapore and South Korea launch AI alliance backed by US$300m fund - CNA</a><p class="source-metric-line">Source Credibility: 4.70 / 5 | Topical Relevance: 5.00 / 5 | Actionability: 4.60 / 5</p><p><strong>tldr:</strong> Singapore and South Korea launched the Korea–Singapore AI Alliance, positioning AI as a shared growth engine, with Seoul committing a US$300 million global fund to be established in Singapore.</p><p>Singapore and South Korea have formally launched the Korea–Singapore AI Alliance, positioning artificial intelligence as a shared growth engine. Seoul is backing the partnership with a US$300 million global fund to be established in Singapore ...</p><small>www.channelnewsasia.com | 5 days ago</small></li><li><a href="https://www.channelnewsasia.com/singapore/ai-schools-learning-moe-students-critical-thinking-cognitive-offloading-desmond-lee-5969391" target="_blank" rel="noreferrer">Students must stay grounded in critical thinking amid AI push: Desmond Lee - CNA</a><p class="source-metric-line">Source Credibility: 4.70 / 5 | Topical Relevance: 4.50 / 5 | Actionability: 3.50 / 5</p><p><strong>tldr:</strong> Desmond Lee urged students to retain critical thinking amid Singapore's AI push, calling for schools and parents to provide guardrails while MOE rolls out 15 advanced-module schools after phasing out the GEP.</p><p>He added that schools and parents must work closely together to provide guardrails while empowering children to explore the possibilities of AI. “All these changes are just the first step in that direction.” · Mr Lee also addressed the phasing out of the Gifted Education Programme (GEP), which was first announced by Prime Minister Lawrence Wong at the 2024 National Day Rally. MOE said on Tuesday that following the discontinuation of the GEP, 15 schools will host advanced modules under Singapore&amp;#x27;s new approach to supporting high-ability students starting next year.</p><small>www.channelnewsasia.com | 6 days ago</small></li><li><a href="https://www.straitstimes.com/singapore/politics/singapore-to-train-100000-ai-savvy-workers-by-2029" target="_blank" rel="noreferrer">Singapore to train 100,000 AI-savvy workers by 2029 | The Straits Times</a><p class="source-metric-line">Source Credibility: 4.80 / 5 | Topical Relevance: 5.00 / 5 | Actionability: 4.70 / 5</p><p><strong>tldr:</strong> Singapore launches a National AI Impact Programme to train 100,000 workers and equip 10,000 enterprises with AI capabilities by 2029.</p><p>Singapore launches a new National AI Impact Programme to train 100,000 workers and equip 10,000 enterprises with AI capabilities by 2029. Read more at straitstimes.com. Read more at straitstimes.com.</p><small>www.straitstimes.com | 6 days ago</small></li><li><a href="https://www.businesstimes.com.sg/lifestyle/style-society/singapore-employees-are-embracing-ai-not-company-provided-ones" target="_blank" rel="noreferrer">Singapore employees are embracing AI - but not company-provided ones - The Business Times</a><p class="source-metric-line">Source Credibility: 4.50 / 5 | Topical Relevance: 4.70 / 5 | Actionability: 3.80 / 5</p><p><strong>tldr:</strong> The Qualtrics 2026 Employee Experience report finds Singapore employees are embracing AI—but not company-provided ones—with 69% using AI to improve work quality versus 58% globally.</p><p>The Qualtrics 2026 Employee Experience ... In response, they’re embracing AI at scale, with 69 per cent using AI to improve work quality versus 58 per cent globally....</p><small>www.businesstimes.com.sg | 1 week ago</small></li><li><a href="https://www.channelnewsasia.com/singapore/one-pass-ai-tech-talent-work-visa-mom-5965706" target="_blank" rel="noreferrer">Singapore to launch AI, tech visa track with S$30,000 income requirement - CNA</a><p class="source-metric-line">Source Credibility: 4.70 / 5 | Topical Relevance: 5.00 / 5 | Actionability: 4.60 / 5</p><p><strong>tldr:</strong> Singapore to launch ONE Pass (AI and Tech) visa track, replacing Tech.Pass, with a S$30,000 income requirement to attract top talent in AI, quantum computing and emerging technologies, Manpower Minister Tan See Leng said.</p><p>This is to make Singapore more attractive to top talent in critical and emerging technologies like AI and quantum computing, Manpower Minister Tan See Leng said on Tuesday (Mar 3). The ONE Pass (AI and Tech) track will replace the existing Tech.Pass ...</p><small>www.channelnewsasia.com | 1 week ago</small></li><li><a href="https://www.channelnewsasia.com/singapore/ai-champions-transformation-skills-missions-5963121" target="_blank" rel="noreferrer">Singapore launches Champions of AI programme to drive company-wide transformation - CNA</a><p class="source-metric-line">Source Credibility: 4.70 / 5 | Topical Relevance: 5.00 / 5 | Actionability: 4.60 / 5</p><p><strong>tldr:</strong> Singapore will launch a new Champions of AI programme to help companies embed artificial intelligence across their businesses, from core operations to their workforce.</p><p>SINGAPORE: Singapore will launch a new Champions of AI programme to help companies embed artificial intelligence across their businesses – from core operations to their workforce.</p><small>www.channelnewsasia.com | 1 week ago</small></li><li><a href="https://www.straitstimes.com/singapore/politics/singaporeans-to-receive-free-premium-ai-subscriptions-from-second-half-of-2026" target="_blank" rel="noreferrer">Free premium AI subscriptions for those taking certain SkillsFuture courses from 2nd half of 2026 | The Straits Times</a><p class="source-metric-line">Source Credibility: 4.80 / 5 | Topical Relevance: 5.00 / 5 | Actionability: 4.60 / 5</p><p><strong>tldr:</strong> Singapore will give free AI subscriptions to those taking certain SkillsFuture courses from the second half of 2026, with qualifying courses and tools to be announced in talks with Google, Manus, Microsoft and OpenAI.</p><p>Free AI subscriptions will be rolled out in the second half of 2026, with details of the qualifying AI courses and tools to be announced later, he said. Discussions are under way with providers such as Google, Manus, Microsoft and OpenAI, said ...</p><small>www.straitstimes.com | 1 week ago</small></li><li><a href="https://www.channelnewsasia.com/singapore/training-academy-public-officers-digital-data-ai-skills-5962951" target="_blank" rel="noreferrer">New training academy to equip more than 150,000 public officers with digital, data and AI skills - CNA</a><p class="source-metric-line">Source Credibility: 4.70 / 5 | Topical Relevance: 5.00 / 5 | Actionability: 4.70 / 5</p><p><strong>tldr:</strong> Singapore is launching a National AI Impact Programme and a new training academy to equip over 150,000 public officers with digital, data and AI skills, aiming to democratise AI benefits, said Minister Josephine Teo.</p><p>Singapore wants to take full advantage of AI&amp;#x27;s ability to be democratised - for its benefits to spread widely, said Digital Development and Information Minister Josephine Teo. This is why the government is creating the National AI Impact Programme ...</p><small>www.channelnewsasia.com | 1 week ago</small></li></ul></section></main></div>
+    <script type="module" src="./BTG News Tracker_files/main.jsx"></script>
+  
+
+</body></html>

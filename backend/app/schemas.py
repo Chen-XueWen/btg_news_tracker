@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Literal
 
 from pydantic import BaseModel, Field
 
@@ -41,7 +42,7 @@ class NewsResponse(BaseModel):
 class VideoGenerateRequest(BaseModel):
     topic: str = Field(min_length=2, max_length=200)
     summary: str = Field(min_length=20, max_length=8000)
-    seconds: int = Field(default=8, ge=1, le=20)
+    seconds: Literal[4, 8, 12] = 12
     size: str = Field(default="1280x720")
 
 

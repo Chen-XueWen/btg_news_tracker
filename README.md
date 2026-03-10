@@ -111,6 +111,8 @@ Health check:
 curl http://localhost:8000/api/health
 ```
 
+Backend logs are also written to `backend/logs/app.log` (rotating file, 5 backups).
+
 ## Run frontend
 
 ```bash
@@ -150,10 +152,13 @@ curl -X POST http://localhost:8000/api/videos \
   -d '{
     "topic":"Agentic AI",
     "summary":"<paste summary text here>",
-    "seconds":8,
+    "seconds":12,
     "size":"1280x720"
   }'
 ```
+
+`seconds` allowed values: `4`, `8`, `12`.
+Before calling Sora, the backend distills the long summary into a duration-fit narration script.
 
 Check job:
 
