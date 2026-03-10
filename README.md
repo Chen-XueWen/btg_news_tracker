@@ -5,6 +5,7 @@ Initial version of a topic-driven news agent with:
 - LangGraph orchestration (`search -> summarize_sources -> summarize -> score`)
 - Brave Search API for latest web results (last 7 days)
 - OpenAI GPT-5 mini for synthesis
+- OpenAI Sora video generation (`sora-2`) for summary narration
 - React frontend
 
 ## Architecture
@@ -21,6 +22,7 @@ Backend flow:
 6. Build final global summary from tldr summaries + source snippets
 7. Score the output against up to 5 user-defined metrics (`variable` + `description`)
 8. Return summary + source list + per-source metric scores
+9. Optionally generate a short narrated video from the summary via Sora (`/api/videos`)
 
 ## Keys
 
@@ -28,6 +30,7 @@ This project reads keys from either env vars or files in `./secrets/`:
 - `BRAVE_API_KEY` or `./secrets/bravesearchapi.key`
 - `OPENAI_API_KEY` or `./secrets/openai.key`
 - `SLACK_WEBHOOK_URL` or `./secrets/slackwebhook.key`
+- `PUBLIC_API_BASE_URL` (optional, used to include a playable video link in Slack notifications)
 
 ## Run backend
 
@@ -74,9 +77,44 @@ curl -X POST http://localhost:8000/api/news \
   }'
 ```
 
+## Video API
+
+Create video job:
+
+```bash
+curl -X POST http://localhost:8000/api/videos \
+  -H "Content-Type: application/json" \
+  -d '{
+    "topic":"Agentic AI",
+    "summary":"<paste summary text here>",
+    "seconds":8,
+    "size":"1280x720"
+  }'
+```
+
+Check job:
+
+```bash
+curl http://localhost:8000/api/videos/<video_id>
+```
+
+Download when status is `completed`:
+
+```bash
+curl -L http://localhost:8000/api/videos/<video_id>/content -o summary.mp4
+```
+
+To force attachment download header:
+
+```bash
+curl -L \"http://localhost:8000/api/videos/<video_id>/content?download=true\" -o summary.mp4
+```
+
 ## Notes
 
 - "Last 7 days" is enforced twice: Brave's weekly freshness filter and strict backend date filtering.
 - Date filtering keeps only sources with parseable timestamps that fall inside the rolling 7-day window.
 - Current tradeoff: strict filtering may return fewer results for topics where many pages have missing/ambiguous publish dates.
 - On successful generation, the backend sends the topic summary, source tldrs, and scoring results to Slack via webhook.
+- Video narration prompt is configured to avoid imitating real people/public figures.
+- When a video job reaches `completed`, the backend sends a Slack notification once per video id.

@@ -40,6 +40,9 @@ export default function App() {
   const [loading, setLoading] = useState(false)
   const [error, setError] = useState('')
   const [result, setResult] = useState(null)
+  const [videoLoading, setVideoLoading] = useState(false)
+  const [videoError, setVideoError] = useState('')
+  const [videoJob, setVideoJob] = useState(null)
 
   const canSubmit = useMemo(() => topic.trim().length >= 2 && !loading, [topic, loading])
 
@@ -140,11 +143,105 @@ export default function App() {
       }
 
       setResult(data)
+      setVideoJob(null)
+      setVideoError('')
     } catch (err) {
       setError(err.message || 'Unexpected error')
       setResult(null)
     } finally {
       setLoading(false)
+    }
+  }
+
+  async function pollVideoJob(videoId) {
+    for (let attempt = 0; attempt < 60; attempt += 1) {
+      const response = await fetch(`${API_BASE}/api/videos/${videoId}`)
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.detail || 'Failed to fetch video job status')
+      }
+
+      setVideoJob(data)
+      const status = String(data.status || '').toLowerCase()
+      if (status === 'completed' || status === 'failed' || status === 'cancelled') {
+        return data
+      }
+
+      await new Promise((resolve) => {
+        setTimeout(resolve, 5000)
+      })
+    }
+
+    throw new Error('Video generation timed out while waiting for completion.')
+  }
+
+  function extractVideoErrorText(job) {
+    if (!job || !job.error) {
+      return ''
+    }
+
+    if (typeof job.error === 'string') {
+      return job.error
+    }
+
+    if (typeof job.error === 'object') {
+      const message = job.error.message || job.error.detail
+      if (message) {
+        return String(message)
+      }
+      return JSON.stringify(job.error)
+    }
+
+    return String(job.error)
+  }
+
+  async function handleGenerateVideo() {
+    if (!result || videoLoading) {
+      return
+    }
+
+    setVideoLoading(true)
+    setVideoError('')
+
+    try {
+      const response = await fetch(`${API_BASE}/api/videos`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          topic: result.topic,
+          summary: result.summary,
+          seconds: 8,
+          size: '1280x720'
+        })
+      })
+
+      const data = await response.json()
+      if (!response.ok) {
+        throw new Error(data.detail || 'Failed to start video generation')
+      }
+
+      setVideoJob(data)
+
+      const status = String(data.status || '').toLowerCase()
+      if (status !== 'completed' && status !== 'failed' && status !== 'cancelled') {
+        const finalJob = await pollVideoJob(data.id)
+        setVideoJob(finalJob)
+        const finalStatus = String(finalJob.status || '').toLowerCase()
+        if (finalStatus === 'failed' || finalStatus === 'cancelled') {
+          const text = extractVideoErrorText(finalJob)
+          setVideoError(text || `Video job ${finalStatus}.`)
+        }
+      } else if (status === 'failed' || status === 'cancelled') {
+        const text = extractVideoErrorText(data)
+        setVideoError(text || `Video job ${status}.`)
+      } else if (status === 'completed') {
+        const completedJob = await pollVideoJob(data.id)
+        setVideoJob(completedJob)
+      }
+    } catch (err) {
+      setVideoError(err.message || 'Unexpected error while generating video')
+    } finally {
+      setVideoLoading(false)
     }
   }
 
@@ -234,6 +331,49 @@ export default function App() {
         <section className="results">
           <h2>Summary for {result.topic}</h2>
           <pre className="summary">{result.summary}</pre>
+
+          <section className="video-panel">
+            <h3>Video Narration</h3>
+            <p className="video-help">
+              Generates a short video narration using <code>sora-2</code> (cost-optimized option) with a
+              neutral news-anchor voice.
+            </p>
+            <button type="button" onClick={handleGenerateVideo} disabled={videoLoading}>
+              {videoLoading ? 'Generating video...' : 'Generate video'}
+            </button>
+            {videoError && <p className="error">{videoError}</p>}
+            {videoJob && (
+              <p className="video-status">
+                Status: <strong>{videoJob.status || 'unknown'}</strong>
+                {videoJob.progress !== null && videoJob.progress !== undefined
+                  ? ` (${Number(videoJob.progress).toFixed(0)}%)`
+                  : ''}
+              </p>
+            )}
+            {videoJob && String(videoJob.status || '').toLowerCase() === 'failed' && videoJob.error && (
+              <pre className="video-error-detail">{extractVideoErrorText(videoJob)}</pre>
+            )}
+            {videoJob && String(videoJob.status || '').toLowerCase() === 'completed' && (
+              <>
+                <video
+                  key={videoJob.id}
+                  className="video-player"
+                  controls
+                  preload="metadata"
+                  src={`${API_BASE}/api/videos/${videoJob.id}/content`}
+                />
+                <p className="video-download">
+                  <a
+                    href={`${API_BASE}/api/videos/${videoJob.id}/content?download=true`}
+                    target="_blank"
+                    rel="noreferrer"
+                  >
+                    Download video (.mp4)
+                  </a>
+                </p>
+              </>
+            )}
+          </section>
 
           <h3>Sources</h3>
           <ul className="articles">

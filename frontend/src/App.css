@@ -138,6 +138,54 @@ button:disabled {
   border: 1px solid #e0e7ef;
 }
 
+.video-panel {
+  margin: 1rem 0 1.3rem;
+  padding: 0.9rem;
+  border-radius: 10px;
+  border: 1px solid #d8e2ec;
+  background: #f7fbff;
+}
+
+.video-panel h3 {
+  margin: 0 0 0.4rem;
+}
+
+.video-help {
+  margin: 0 0 0.8rem;
+  color: #3f5164;
+}
+
+.video-status,
+.video-download {
+  margin: 0.7rem 0 0;
+}
+
+.video-error-detail {
+  margin: 0.7rem 0 0;
+  padding: 0.65rem;
+  border: 1px solid #efcaca;
+  background: #fff4f4;
+  border-radius: 8px;
+  white-space: pre-wrap;
+  word-break: break-word;
+  font-size: 0.9rem;
+}
+
+.video-download a {
+  color: #0e375c;
+  font-weight: 700;
+  text-decoration: none;
+}
+
+.video-player {
+  width: 100%;
+  margin-top: 0.8rem;
+  border-radius: 10px;
+  border: 1px solid #d6e0ea;
+  background: #0f1a24;
+  max-height: 420px;
+}
+
 .source-metric-line {
   margin: 0.4rem 0;
   color: #1f4f3a;

@@ -36,3 +36,20 @@ class NewsResponse(BaseModel):
     summary: str
     articles: list[Article]
     generated_at: datetime
+
+
+class VideoGenerateRequest(BaseModel):
+    topic: str = Field(min_length=2, max_length=200)
+    summary: str = Field(min_length=20, max_length=8000)
+    seconds: int = Field(default=8, ge=1, le=20)
+    size: str = Field(default="1280x720")
+
+
+class VideoJobResponse(BaseModel):
+    id: str | None = None
+    status: str | None = None
+    model: str | None = None
+    progress: float | None = None
+    seconds: int | None = None
+    size: str | None = None
+    error: dict | str | None = None

@@ -132,3 +132,31 @@ async def send_news_to_slack(
 
     if response.text.strip().lower() != "ok":
         raise SlackSendError(f"Slack webhook returned unexpected response: {response.text}")
+
+
+async def send_video_to_slack(
+    *,
+    webhook_url: str,
+    topic: str,
+    video_id: str,
+    video_url: str | None = None,
+) -> None:
+    if not webhook_url:
+        raise SlackSendError("Slack webhook URL is missing.")
+
+    text = f"Video generated for {topic} (id: {video_id})."
+    if video_url:
+        text += f" Watch/download: {video_url}"
+
+    payload = {"text": text}
+
+    async with httpx.AsyncClient(timeout=20.0) as client:
+        response = await client.post(webhook_url, json=payload)
+
+    if response.status_code >= 400:
+        raise SlackSendError(
+            f"Slack webhook request failed with {response.status_code}: {response.text}"
+        )
+
+    if response.text.strip().lower() != "ok":
+        raise SlackSendError(f"Slack webhook returned unexpected response: {response.text}")
