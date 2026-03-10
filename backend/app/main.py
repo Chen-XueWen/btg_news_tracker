@@ -47,7 +47,12 @@ async def news(payload: NewsRequest) -> NewsResponse:
         raise HTTPException(status_code=500, detail="Missing Slack webhook URL.")
 
     try:
-        result = await app.state.agent.ainvoke({"topic": payload.topic})
+        result = await app.state.agent.ainvoke(
+            {
+                "topic": payload.topic,
+                "scoring_metrics": [metric.model_dump() for metric in payload.scoring_metrics],
+            }
+        )
     except BraveSearchError as exc:
         raise HTTPException(status_code=502, detail=str(exc)) from exc
     except Exception as exc:  # pragma: no cover

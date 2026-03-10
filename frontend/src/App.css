@@ -38,12 +38,59 @@ h1 {
   margin-top: 0.45rem;
 }
 
+.metric-section {
+  margin-top: 1.2rem;
+  border: 1px solid #d2deea;
+  border-radius: 12px;
+  padding: 0.9rem;
+  background: #f8fbfe;
+}
+
+.metric-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.75rem;
+}
+
+.metric-head h3 {
+  margin: 0;
+}
+
+.metric-help {
+  margin: 0.4rem 0 0.7rem;
+  color: #3f5164;
+}
+
+.metric-list {
+  display: grid;
+  gap: 0.6rem;
+}
+
+.metric-row {
+  display: grid;
+  grid-template-columns: 1fr 1fr 2fr auto;
+  gap: 0.6rem;
+}
+
 input {
   flex: 1;
   border: 1px solid #b9c8d6;
   border-radius: 10px;
   font-size: 1rem;
   padding: 0.75rem;
+}
+
+select {
+  border: 1px solid #b9c8d6;
+  border-radius: 10px;
+  font-size: 1rem;
+  padding: 0.75rem;
+  background: white;
+}
+
+.readonly-field {
+  background: #edf3f8;
 }
 
 button {
@@ -60,6 +107,14 @@ button {
 button:disabled {
   opacity: 0.55;
   cursor: not-allowed;
+}
+
+.button-secondary {
+  background: #2f4e6b;
+}
+
+.button-danger {
+  background: #9f3030;
 }
 
 .error {
@@ -81,6 +136,12 @@ button:disabled {
   padding: 0.9rem;
   border-radius: 10px;
   border: 1px solid #e0e7ef;
+}
+
+.source-metric-line {
+  margin: 0.4rem 0;
+  color: #1f4f3a;
+  font-weight: 600;
 }
 
 .articles {
@@ -110,6 +171,15 @@ button:disabled {
 @media (max-width: 640px) {
   .row {
     flex-direction: column;
+  }
+
+  .metric-row {
+    grid-template-columns: 1fr;
+  }
+
+  .metric-head {
+    flex-direction: column;
+    align-items: flex-start;
   }
 
   button {

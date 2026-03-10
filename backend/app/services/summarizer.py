@@ -86,7 +86,7 @@ def _build_source_block(articles: list[dict[str, str | None]]) -> str:
             f"Source: {source} | Published: {published}\n"
             f"URL: {url}\n"
             f"Snippet: {description}\n"
-            f"Mini summary: {mini_summary}"
+            f"tldr: {mini_summary}"
         )
     return "\n\n".join(lines)
 

@@ -1,6 +1,7 @@
 from __future__ import annotations
 
 from datetime import datetime
+from typing import Any
 
 import httpx
 
@@ -20,7 +21,7 @@ def _build_blocks(
     *,
     topic: str,
     summary: str,
-    articles: list[dict[str, str | None]],
+    articles: list[dict[str, Any]],
     generated_at: datetime,
 ) -> list[dict]:
     blocks: list[dict] = [
@@ -52,36 +53,50 @@ def _build_blocks(
                 "text": {"type": "mrkdwn", "text": "No qualifying sources were found."},
             }
         )
-        return blocks
+    else:
+        for idx, article in enumerate(articles[:10], start=1):
+            title = _truncate(article.get("title") or "Untitled", 140)
+            url = article.get("url") or ""
+            mini_summary = article.get("mini_summary") or article.get("description") or "No summary"
+            mini_summary = _truncate(mini_summary, 300)
+            source = article.get("source") or "Unknown source"
+            published = article.get("published") or article.get("published_at") or "Unknown time"
+            metric_scores = article.get("source_metric_scores") or []
+            metric_score_line = ""
+            if isinstance(metric_scores, list) and metric_scores:
+                formatted_scores = []
+                for metric in metric_scores:
+                    if not isinstance(metric, dict):
+                        continue
+                    variable = str(metric.get("variable", "Metric")).strip()
+                    try:
+                        score = float(metric.get("score", 0))
+                    except (TypeError, ValueError):
+                        score = 0.0
+                    formatted_scores.append(f"{variable}: {score:.2f}/5")
+                if formatted_scores:
+                    metric_score_line = "\n*Scores:* " + " | ".join(formatted_scores)
 
-    for idx, article in enumerate(articles[:10], start=1):
-        title = _truncate(article.get("title") or "Untitled", 140)
-        url = article.get("url") or ""
-        mini_summary = article.get("mini_summary") or article.get("description") or "No summary"
-        mini_summary = _truncate(mini_summary, 300)
-        source = article.get("source") or "Unknown source"
-        published = article.get("published") or article.get("published_at") or "Unknown time"
-
-        blocks.append(
-            {
-                "type": "section",
-                "text": {
-                    "type": "mrkdwn",
-                    "text": f"*{idx}. <{url}|{title}>*\n{mini_summary}",
-                },
-            }
-        )
-        blocks.append(
-            {
-                "type": "context",
-                "elements": [
-                    {
+            blocks.append(
+                {
+                    "type": "section",
+                    "text": {
                         "type": "mrkdwn",
-                        "text": f"{source} | {published}",
-                    }
-                ],
-            }
-        )
+                        "text": f"*{idx}. <{url}|{title}>*{metric_score_line}\n{mini_summary}",
+                    },
+                }
+            )
+            blocks.append(
+                {
+                    "type": "context",
+                    "elements": [
+                        {
+                            "type": "mrkdwn",
+                            "text": f"{source} | {published}",
+                        }
+                    ],
+                }
+            )
 
     return blocks
 
@@ -91,7 +106,7 @@ async def send_news_to_slack(
     webhook_url: str,
     topic: str,
     summary: str,
-    articles: list[dict[str, str | None]],
+    articles: list[dict[str, Any]],
     generated_at: datetime,
 ) -> None:
     if not webhook_url:
