@@ -96,6 +96,24 @@ def test_news_validation_rejects_short_topic(client: TestClient):
     assert response.status_code == 422
 
 
+def test_news_topic_is_sanitized_and_not_reflected_as_html(client: TestClient):
+    payload = {"topic": "<script>alert(1)</script>", "scoring_metrics": []}
+    response = client.post("/api/news", json=payload)
+    assert response.status_code == 200
+    body = response.json()
+    assert body["topic"] == "scriptalert(1)/script"
+    assert "<script>alert(1)</script>" not in response.text
+
+
+def test_health_includes_security_headers(client: TestClient):
+    response = client.get("/api/health")
+    assert response.status_code == 200
+    assert response.headers.get("x-content-type-options") == "nosniff"
+    assert response.headers.get("x-frame-options") == "DENY"
+    assert response.headers.get("content-security-policy")
+    assert response.headers.get("strict-transport-security")
+
+
 def test_news_missing_brave_key_returns_500(monkeypatch: pytest.MonkeyPatch):
     _configure_env(monkeypatch, brave_key="")
     _patch_default_runtime(monkeypatch)

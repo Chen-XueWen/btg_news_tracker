@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
 
 
 class ScoringMetricInput(BaseModel):
@@ -14,6 +14,12 @@ class ScoringMetricInput(BaseModel):
 class NewsRequest(BaseModel):
     topic: str = Field(min_length=2, max_length=200)
     scoring_metrics: list[ScoringMetricInput] = Field(default_factory=list, max_length=5)
+
+    @field_validator("topic", mode="before")
+    @classmethod
+    def sanitize_topic(cls, value: str) -> str:
+        # Normalize potentially unsafe input so it is not reflected as executable markup.
+        return str(value).strip().replace("<", "").replace(">", "")
 
 
 class SourceMetricScore(BaseModel):
@@ -44,6 +50,11 @@ class VideoGenerateRequest(BaseModel):
     summary: str = Field(min_length=20, max_length=8000)
     seconds: Literal[4, 8, 12] = 12
     size: str = Field(default="1280x720")
+
+    @field_validator("topic", mode="before")
+    @classmethod
+    def sanitize_topic(cls, value: str) -> str:
+        return str(value).strip().replace("<", "").replace(">", "")
 
 
 class VideoJobResponse(BaseModel):
