@@ -1,7 +1,6 @@
 ![BTG News Tracker Poster](./assets/poster.png)
 
-[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=Chen-XueWen_btg_news_tracker)](https://sonarcloud.io/summary/new_code?id=Chen-XueWen_btg_news_tracker)
-
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=Chen-XueWen_btg_news_tracker)](https://sonarcloud.io/summary/new_code?id=Chen-XueWen_btg_news_tracker) 
 
 Topic-driven news agent with:
 - FastAPI backend
