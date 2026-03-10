@@ -8,6 +8,8 @@ Topic-driven news agent with:
 - OpenAI Sora video generation (`sora-2`) for summary narration
 - React frontend
 
+[![Quality gate](https://sonarcloud.io/api/project_badges/quality_gate?project=Chen-XueWen_btg_news_tracker)](https://sonarcloud.io/summary/new_code?id=Chen-XueWen_btg_news_tracker)
+
 # Architecture Diagram
 
 ```mermaid

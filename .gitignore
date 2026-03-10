@@ -9,6 +9,7 @@ frontend/dist/
 
 # Local secrets
 *.key
+test_evidence
 
 # OS/editor
 .DS_Store
