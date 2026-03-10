@@ -10,7 +10,12 @@ from app.agent.graph import build_news_agent
 from app.config import load_settings
 from app.schemas import Article, NewsRequest, NewsResponse, VideoGenerateRequest, VideoJobResponse
 from app.services.brave_search import BraveSearchError
-from app.services.slack import SlackSendError, send_news_to_slack, send_video_to_slack
+from app.services.slack import (
+    SlackSendError,
+    send_news_to_slack,
+    send_video_to_slack,
+    upload_video_file_to_slack,
+)
 from app.services.video import (
     VideoGenerationError,
     build_video_prompt,
@@ -139,16 +144,39 @@ async def get_video(video_id: str) -> VideoJobResponse:
         base = settings.public_api_base_url.rstrip("/")
         video_url = f"{base}/api/videos/{video_id}/content" if base else None
         try:
-            await send_video_to_slack(
-                webhook_url=settings.slack_webhook_url,
-                topic=topic,
-                video_id=video_id,
-                video_url=video_url,
-            )
+            if settings.slack_bot_token and settings.slack_channel_id:
+                video_bytes = await download_video_content(
+                    api_key=settings.openai_api_key,
+                    video_id=video_id,
+                )
+                await upload_video_file_to_slack(
+                    bot_token=settings.slack_bot_token,
+                    channel_id=settings.slack_channel_id,
+                    file_bytes=video_bytes,
+                    filename=f"news-{video_id}.mp4",
+                    title=f"{topic} Summary Video",
+                    initial_comment=f"Video generated for {topic} (id: {video_id}).",
+                )
+            else:
+                await send_video_to_slack(
+                    webhook_url=settings.slack_webhook_url,
+                    topic=topic,
+                    video_id=video_id,
+                    video_url=video_url,
+                )
             app.state.notified_video_ids.add(video_id)
-        except SlackSendError:
-            # Do not fail status polling if Slack notification fails.
-            pass
+        except (SlackSendError, VideoGenerationError):
+            # Fallback to webhook text/link notification if file upload fails.
+            try:
+                await send_video_to_slack(
+                    webhook_url=settings.slack_webhook_url,
+                    topic=topic,
+                    video_id=video_id,
+                    video_url=video_url,
+                )
+            except SlackSendError:
+                pass
+            app.state.notified_video_ids.add(video_id)
 
     return VideoJobResponse(**job)
 

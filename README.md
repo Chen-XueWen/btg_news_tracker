@@ -30,6 +30,8 @@ This project reads keys from either env vars or files in `./secrets/`:
 - `BRAVE_API_KEY` or `./secrets/bravesearchapi.key`
 - `OPENAI_API_KEY` or `./secrets/openai.key`
 - `SLACK_WEBHOOK_URL` or `./secrets/slackwebhook.key`
+- `SLACK_BOT_TOKEN` or `./secrets/slacktoken.key` (needed for Slack file attachment upload)
+- `SLACK_CHANNEL_ID` or `./secrets/slackchannelid.key` (channel to post uploaded video file)
 - `PUBLIC_API_BASE_URL` (optional, used to include a playable video link in Slack notifications)
 
 ## Run backend
@@ -117,4 +119,5 @@ curl -L \"http://localhost:8000/api/videos/<video_id>/content?download=true\" -o
 - Current tradeoff: strict filtering may return fewer results for topics where many pages have missing/ambiguous publish dates.
 - On successful generation, the backend sends the topic summary, source tldrs, and scoring results to Slack via webhook.
 - Video narration prompt is configured to avoid imitating real people/public figures.
-- When a video job reaches `completed`, the backend sends a Slack notification once per video id.
+- When a video job reaches `completed`, backend tries to upload the mp4 to Slack (bot token + channel id). If upload fails, it falls back to webhook notification.
+- Slack file upload requires `files:write` scope (and channel posting access). `connections:write` alone is not sufficient.

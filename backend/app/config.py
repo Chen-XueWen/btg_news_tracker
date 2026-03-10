@@ -21,6 +21,8 @@ class Settings:
     brave_api_key: str
     openai_api_key: str
     slack_webhook_url: str
+    slack_bot_token: str
+    slack_channel_id: str
     public_api_base_url: str
     model: str = "gpt-5-mini"
     brave_endpoint: str = "https://api.search.brave.com/res/v1/web/search"
@@ -31,6 +33,8 @@ def load_settings() -> Settings:
     brave_api_key = os.getenv("BRAVE_API_KEY") or _read_secret_file("bravesearchapi.key")
     openai_api_key = os.getenv("OPENAI_API_KEY") or _read_secret_file("openai.key")
     slack_webhook_url = os.getenv("SLACK_WEBHOOK_URL") or _read_secret_file("slackwebhook.key")
+    slack_bot_token = os.getenv("SLACK_BOT_TOKEN") or _read_secret_file("slacktoken.key")
+    slack_channel_id = os.getenv("SLACK_CHANNEL_ID") or _read_secret_file("slackchannelid.key")
     public_api_base_url = os.getenv("PUBLIC_API_BASE_URL", "").strip()
     model = os.getenv("OPENAI_MODEL", "gpt-5-mini")
 
@@ -38,6 +42,8 @@ def load_settings() -> Settings:
         brave_api_key=brave_api_key,
         openai_api_key=openai_api_key,
         slack_webhook_url=slack_webhook_url,
+        slack_bot_token=slack_bot_token,
+        slack_channel_id=slack_channel_id,
         public_api_base_url=public_api_base_url,
         model=model,
     )

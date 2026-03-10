@@ -1,5 +1,6 @@
 from __future__ import annotations
 
+import json
 from datetime import datetime
 from typing import Any
 
@@ -8,6 +9,18 @@ import httpx
 
 class SlackSendError(RuntimeError):
     pass
+
+
+def _parse_slack_json(response: httpx.Response) -> dict[str, Any]:
+    try:
+        payload = response.json()
+    except Exception as exc:  # pragma: no cover
+        raise SlackSendError(f"Slack returned non-JSON response: {response.text}") from exc
+
+    if not payload.get("ok", False):
+        raise SlackSendError(f"Slack API error: {payload.get('error', 'unknown_error')}")
+
+    return payload
 
 
 def _truncate(text: str, max_chars: int) -> str:
@@ -160,3 +173,58 @@ async def send_video_to_slack(
 
     if response.text.strip().lower() != "ok":
         raise SlackSendError(f"Slack webhook returned unexpected response: {response.text}")
+
+
+async def upload_video_file_to_slack(
+    *,
+    bot_token: str,
+    channel_id: str,
+    file_bytes: bytes,
+    filename: str,
+    title: str,
+    initial_comment: str,
+) -> None:
+    if not bot_token:
+        raise SlackSendError("Slack bot token is missing.")
+    if not channel_id:
+        raise SlackSendError("Slack channel id is missing.")
+    if not file_bytes:
+        raise SlackSendError("Video file bytes are empty.")
+
+    headers = {"Authorization": f"Bearer {bot_token}"}
+
+    async with httpx.AsyncClient(timeout=60.0) as client:
+        # Step 1: get signed upload URL + file id.
+        upload_url_response = await client.post(
+            "https://slack.com/api/files.getUploadURLExternal",
+            headers=headers,
+            data={"filename": filename, "length": str(len(file_bytes))},
+        )
+        upload_url_payload = _parse_slack_json(upload_url_response)
+        upload_url = upload_url_payload.get("upload_url")
+        file_id = upload_url_payload.get("file_id")
+        if not upload_url or not file_id:
+            raise SlackSendError("Slack did not return upload_url/file_id.")
+
+        # Step 2: upload raw bytes to signed URL.
+        raw_upload_response = await client.post(
+            upload_url,
+            content=file_bytes,
+            headers={"Content-Type": "video/mp4"},
+        )
+        if raw_upload_response.status_code >= 400:
+            raise SlackSendError(
+                f"Slack raw upload failed with {raw_upload_response.status_code}: {raw_upload_response.text}"
+            )
+
+        # Step 3: complete upload and share to channel.
+        complete_upload_response = await client.post(
+            "https://slack.com/api/files.completeUploadExternal",
+            headers=headers,
+            data={
+                "files": json.dumps([{"id": file_id, "title": title}]),
+                "channel_id": channel_id,
+                "initial_comment": initial_comment,
+            },
+        )
+        _parse_slack_json(complete_upload_response)
