@@ -1,4 +1,4 @@
-# BTG News Tracker (v0)
+# BTG News Tracker
 
 Initial version of a topic-driven news agent with:
 - FastAPI backend
